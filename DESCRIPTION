@@ -1,10 +1,11 @@
-Package: dizzy2
+Package: dizzy
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Tools to measure distance based specialisation of species and communities
 Version: 0.1
 Date: 2015-12-17
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Authors@R: person("Jorge", "Leonardo R.", email = "leonardorejorge@gmail.com",
+  role = c("aut", "cre"))
+Description: A set of tools to measure the distance-based specialisation index 
+    (DSI) bla
+License: GPL-3
 LazyData: TRUE
