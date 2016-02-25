@@ -182,12 +182,10 @@ mpd2 <- function (samp, dis, abundance.weighted = FALSE) {
                                                                               drop = FALSE])
         diag(sample.weights) <- as.numeric(samp[i,sppInSample]*(samp[i,sppInSample]-1)/2)
         mpd[i] <- weighted.mean(sample.dis[lower.tri(sample.dis, diag=TRUE)], sample.weights[lower.tri(sample.weights, diag=TRUE)])
-      }
-      else {
+      } else {
         mpd[i] <- mean(sample.dis[lower.tri(sample.dis)])
       }
-    }
-    else {
+    } else {
       mpd[i] <- 0
     }
   }
@@ -258,8 +256,9 @@ DSIpart <- function(Mat, rep=1000){
 
 #### Plotting the partiion ####
 Plot.DSIpart <- function(Part){
-  library(ggplot2)
-  x <- factor(names(Part$OBS),levels(factor(names(Part$OBS)))[c(3,2,1,4)])
-  qplot(x[-4],Part$OBS[-4], xlab= "Component", ylab= "Mean Squares") + theme_classic() + geom_pointrange(aes(ymax=Part$CI[2,-4],ymin=Part$CI[1,-4]))
+  x <- factor(names(Part$OBS),levels(factor(names(Part$OBS)))[c(3,2,1)])
+  plot.default(x[-4],Part$OBS[-4], pch=16, ylim=range(c(Part$OBS,Part$CI)), xaxt="n", ylab="Mean Squares", xlab="Component")
+  axis(1, 1:3, x[-4])
+  segments(x0=1:3,y0=Part$CI[1,-4], y1=Part$CI[2,-4])
 }
 
