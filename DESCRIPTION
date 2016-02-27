@@ -5,12 +5,12 @@ Version: 0.1
 Date: 2015-12-17
 Authors@R: person("Jorge", "Leonardo R.", email = "leonardorejorge@gmail.com",
   role = c("aut", "cre"))
-Imports: 
+Imports:
     picante,
     bipartite,
     adephylo
-    
-Description: A set of tools to measure the distance-based specialisation index 
+Description: A set of tools to measure the distance-based specialisation index
     (DSI) for species and its community-level counterpart (DSICom)
 License: GPL-3
 LazyData: TRUE
+RoxygenNote: 5.0.1

@@ -63,3 +63,29 @@ NullNA <- function(DSILoc,rep=1000){
   #  return(NullDist)
   return(NullPart)
 }
+
+#####MPD####
+#Function to calculate MPD correctly. The rationale is similar to the MPD function in picante, but the diagonal in the sample weights matrix is corrected, using the number of combinations of diferent individuals in the same species at the diagonal. MPD for 1 single species is also changed to 0 instead of NA.
+
+mpd2 <- function (samp, dis, abundance.weighted = FALSE) {
+  N <- dim(samp)[1]
+  mpd <- numeric(N)
+  for (i in 1:N) {
+    sppInSample <- names(samp[i, samp[i, ] > 0])
+    if (length(sppInSample) > 1) {
+      sample.dis <- dis[sppInSample, sppInSample]
+      if (abundance.weighted) {
+        sample.weights <- t(as.matrix(samp[i, sppInSample, 
+                                           drop = FALSE])) %*% as.matrix(samp[i, sppInSample, 
+                                                                              drop = FALSE])
+        diag(sample.weights) <- as.numeric(samp[i,sppInSample]*(samp[i,sppInSample]-1)/2)
+        mpd[i] <- weighted.mean(sample.dis[lower.tri(sample.dis, diag=TRUE)], sample.weights[lower.tri(sample.weights, diag=TRUE)])
+      } else {
+        mpd[i] <- mean(sample.dis[lower.tri(sample.dis)])
+      }
+    } else {
+      mpd[i] <- 0
+    }
+  }
+  mpd
+}
