@@ -53,7 +53,7 @@ MatToArray <- function (mats){
   Mat.list <- lapply(X = mats, FUN = get)
   Rows <- levels(as.factor(unlist(lapply(Mat.list,rownames))))
   Cols <- levels(as.factor(unlist(lapply(Mat.list,colnames))))
-  int.array <- array(,dim = c(length(Rows),length(Cols), length(Mat.list)))
+  int.array <- array(0, dim = c(length(Rows), length(Cols), length(Mat.list)))
   dimnames(int.array) <- list(Rows,Cols,mats)
   for (i in 1:length(Mat.list)) {
     int.array[match(rownames(Mat.list[[i]]), dimnames(int.array)[[1]]),
