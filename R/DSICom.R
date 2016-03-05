@@ -1,4 +1,8 @@
-#### Partition of DSI components among locations and species ####
+#' Partition of DSI components among locations and species
+#' 
+#' 
+#' @export
+#' 
 DSImean <- function(DSILoc){
   PairSQDist <- outer(c(DSILoc),c(DSILoc),FUN=function (x,y)(x-y)^2)
   ArrayPairDist <- array(NA,dim=c(nrow(DSILoc),nrow(DSILoc),ncol(DSILoc),ncol(DSILoc)))
@@ -26,7 +30,10 @@ DSImean <- function(DSILoc){
 }
 
 
-#### Wrapper to calculate DSImean and the corresponding null model and provide proper results ####
+#' Wrapper to calculate DSImean and the corresponding null model and provide proper results
+#' 
+#' @export
+#' 
 DSIpart <- function(Mat, rep=1000){
   OBSPart <- DSImean(Mat)
   NPart <- NullNA(Mat,rep)

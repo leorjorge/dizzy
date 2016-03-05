@@ -4,6 +4,8 @@
 #' in 'long' format, with columns for consumer, resource, location and frequency
 #' into an interaction array.
 #' 
+#' @export
+#' 
 #' @param data A dataframe of recorded interactions. It needs at least one 
 #'   column for consumer identity and another for resource identity. If the
 #'   study spans different locations, one column with location identity must be
@@ -28,12 +30,12 @@
 #'   
 
 RecordToArray <- function (data, cons=1, res=2, loc, freq=NULL){
-  if (loc == NULL) {
+  if (is.null(loc)) {
     warning ("No location column - assuming one single location")
     loc <- "Location"
     data$loc <- "Location"
   }
-  if (freq != NULL) {
+  if (!is.null(freq)) {
     raw <- data.frame(data[,cons],data[,res],data[,loc],data[,freq])
     data <- raw[rep(1:nrow(raw), times=raw$freq),]
   }
@@ -45,6 +47,8 @@ return(int.array)
 #' 
 #' Organises a set of local interaction matrices into one array for interactions
 #' in all locations
+#' 
+#' @export
 #' 
 #' @param mats A vector with matrix object names.
 #' 

@@ -1,12 +1,18 @@
-###DSI Calculation####
-
-#This function should be able to measure DSI from an Interaction matrix and a Phylogeny. Sampling effort data is necessary for the null model.
-
+#' Distance-based specialisation index
+#'
+#'Measures DSI from an Interaction matrix and a Phylogeny. Sampling effort data is necessary for the null model.
+#'
+#' @export
+#' 
+#' @param Int Is an interaction array for which Specialization is to be measured. Consumers are in rows, resources in the columns and different locations (or other "local" partition - e.g. time) are slices. When the matrix has two dimensions no local variation is assumed.
+#' 
+#' @param Phylo Object of class phylo with the $tip.label information matching Int column names. The phylogeny should have all resource species present in the interaction array and will be pruned accordingly
+#' 
+#' @param Abund Matrix of local abundances/sampling effort of the resources in the interaction array at different locations
+#' 
+#' @param Rep Number of iterations for the null model selected
+#' 
 dsi <- function(Int,Phylo,Abund,Rep=200){
-  #Int is an interaction array for which Specialization is to be measured. Consumers are in rows, resources in the columns and different locations (or other "local" partition - e.g. time) are slices. When the matrix has two dimensions no local variation is assumed.
-  #Phylo is a phylo object with the $tip.label information matching column names. The phylogeny should have all resource species present in the interaction array and will be pruned accordingly
-  #Abund is a matrix of local abundances/sampling effort of the resources in the interaction array at different locations
-  #Rep is the number of iterations for the null model selected
   if (length(dim(Int))==2){
     Dims <- dimnames(Int)
     Int <- as.matrix(Int)
@@ -91,7 +97,10 @@ dsi <- function(Int,Phylo,Abund,Rep=200){
 }
 
 
-####Wrapper to calculate DSI for several different guilds####
+#' Wrapper to calculate DSI for several different guilds
+#' 
+#' @export
+#' 
 DSI.Guilds <- function(Int,Phylo,Abund,Rep=200){
   Res <- vector("list",length(Int))
   names(Res) <- names(Int)
