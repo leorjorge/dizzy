@@ -70,7 +70,7 @@ dsi <- function(Int,Phylo,Abund,Rep=200){
       for(j in 1:dim(nullMPDLoc)[2]){
         Avail <- rep(x=row.names(Abund),times=Abund[,k])
         for(i in 1:dim(nullMPDLoc)[1]){
-          amostras <- sample(Avail, size=apply(Int,c(1,3),sum)[j,k])
+          amostras <- sample(Avail, size=apply(Int,c(1,3),sum)[j,k], replace = T)
           nullMPDLoc[i,j,k] <- mpd2(as.matrix(t(table(amostras))), cophenetic(Phy),abundance.weighted=T)
         }
       }
