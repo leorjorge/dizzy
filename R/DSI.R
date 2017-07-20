@@ -24,7 +24,7 @@ dsi <- function(Int,Phylo,Abund,Rep=200){
   print("Regional data")
   Reg <- data.frame(row.names = rownames(Int)) #Data frame to store the results. 
   Reg$Rich <- specnumber(IntMat) #Number of host plant species
-  Reg$Div <- diversity(IntMat,"simpson") #Simpson diversity of host plant species
+  Reg$Div <- vegan::diversity(IntMat,"simpson") #Simpson diversity of host plant species
   #  Reg$dPrime <- specieslevel(t(IntMat),index="d", level="higher")[,1] #Blüthgen's d Prime calculated from the interaction matrix
   Reg$Samp <- apply(Int,1,sum) #Number of samples in which each consumer was collected
   Reg$MPD <- mpd2(IntMat,dis=cophenetic(Phy),abundance.weighted=T) #Raw Mean Phylogenetic distance among Regources of a given consumer at the regional level
