@@ -38,7 +38,7 @@ dsi <- function(Int,Phylo,Abund,Rep=200){
       Avail <- rep.int(x = rownames(Abund),times = as.numeric(apply(as.matrix(Abund[,Locs]),1,sum)))
       Pesos <- rep(x=LocSamp[j,LocSamp[j,]>0], times=colSums(Abund)[Locs])
       for (i in 1:nrow(Null.MPD)){
-        amostras <- sample(Avail, prob=Pesos, size=Reg$Samp[j], replace=FALSE)
+        amostras <- sample(Avail, prob=Pesos, size=Reg$Samp[j], replace=TRUE)
         Null.MPD[i,j] <- mpd2(as.matrix(t(table(amostras))), cophenetic(Phy),abundance.weighted=T)
       } 
     } else {
