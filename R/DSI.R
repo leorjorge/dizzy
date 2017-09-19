@@ -62,7 +62,7 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
     print("Calculating DSI* at the regional level")
     LocMPD <- apply(X=Int, MARGIN=3, FUN=mpd2, dis=cophenetic(Phy), abundance.weighted=T)
     row.names(LocMPD) <- row.names(Int)
-    GenLoc <- MaxGenLoc(Phy, Int)    
+    
     nullMPDLoc <- array(dim=c(Rep,nrow(LocMPD),ncol(LocMPD)))  
     for(k in 1:dim(nullMPDLoc)[3]){
       for(j in 1:dim(nullMPDLoc)[2]){
@@ -76,13 +76,20 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
     nullMPDLoc.mean <- apply(nullMPDLoc,c(2,3),mean, na.rm=T)
     nullMPDLoc.sd <- apply(nullMPDLoc,c(2,3),sd, na.rm=T)
     LocDSI <- -1*(LocMPD-nullMPDLoc.mean)/nullMPDLoc.sd
-    LocMax <- -1*(0-nullMPDLoc.mean)/nullMPDLoc.sd
-    LocMin <- -1*(GenLoc-nullMPDLoc.mean)/nullMPDLoc.sd
     LocDSIPos <- LocDSI>=0 & !is.na(LocDSI)
     LocDSINeg <- LocDSI<0 & !is.na(LocDSI)
+    LocLim[LocDSIPos] <- -1*(0-nullMPDLoc.mean[DSIPos])/nullMPDLoc.sd[DSIPos]#Maximum value of DSI, calculated by assuming species are monophages
+    GenLoc <- MaxGenLoc(Phy, Int, SpLocs = which(LocDSINeg==T))
+    LocLim[LocDSINeg] <- -1*(GenLoc-nullMPDLoc.mean[DSINeg])/nullMPDLoc.sd[DSINeg]#Minimum value of DSI, calculated by using optimized MaxMPD values
     LocDSI.st <- array(dim = dim(LocDSI))
     LocDSI.st[LocDSIPos] <- LocDSI[LocDSIPos]/LocMax[LocDSIPos]
     LocDSI.st[LocDSINeg] <- LocDSI[LocDSINeg]/LocMin[LocDSINeg]
+    
+    Reg$Lim[DSIPos] <- -1*(0-Null.MPD.mn[DSIPos])/Null.MPD.sd[DSIPos] #Maximum value of DSI, calculated by assuming all species are monophages
+    Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T))
+    Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg]
+    Reg$DSI.st <- Reg$DSI/abs(Reg$Lim)
+    
     Loc <- list(MPD=LocMPD, DSI=LocDSI, Max=LocMax, Min=LocMin, DSI.st=LocDSI.st)
     Loc$DSICOM <- NA
     for (i in 1:ncol(LocDSI.st)){
