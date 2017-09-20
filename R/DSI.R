@@ -85,21 +85,14 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
     nullMPDLoc.mean <- apply(nullMPDLoc,c(2,3),mean, na.rm=T)
     nullMPDLoc.sd <- apply(nullMPDLoc,c(2,3),sd, na.rm=T)
     LocDSI <- -1*(LocMPD-nullMPDLoc.mean)/nullMPDLoc.sd
+    LocLim <- matrix(ncol = ncol(LocDSI), nrow = nrow(LocDSI))
     LocDSIPos <- LocDSI>=0 & !is.na(LocDSI)
     LocDSINeg <- LocDSI<0 & !is.na(LocDSI)
-    LocLim[LocDSIPos] <- -1*(0-nullMPDLoc.mean[DSIPos])/nullMPDLoc.sd[DSIPos]#Maximum value of DSI, calculated by assuming species are monophages
-    GenLoc <- MaxGenLoc(Phy, Int, SpLocs = which(LocDSINeg==T))
-    LocLim[LocDSINeg] <- -1*(GenLoc-nullMPDLoc.mean[DSINeg])/nullMPDLoc.sd[DSINeg]#Minimum value of DSI, calculated by using optimized MaxMPD values
-    LocDSI.st <- array(dim = dim(LocDSI))
-    LocDSI.st[LocDSIPos] <- LocDSI[LocDSIPos]/LocMax[LocDSIPos]
-    LocDSI.st[LocDSINeg] <- LocDSI[LocDSINeg]/LocMin[LocDSINeg]
-    
-    Reg$Lim[DSIPos] <- -1*(0-Null.MPD.mn[DSIPos])/Null.MPD.sd[DSIPos] #Maximum value of DSI, calculated by assuming all species are monophages
-    Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T))
-    Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg]
-    Reg$DSI.st <- Reg$DSI/abs(Reg$Lim)
-    
-    Loc <- list(MPD=LocMPD, DSI=LocDSI, Max=LocMax, Min=LocMin, DSI.st=LocDSI.st)
+    LocLim[LocDSIPos] <- -1*(0-nullMPDLoc.mean[LocDSIPos])/nullMPDLoc.sd[LocDSIPos]#Maximum value of DSI, calculated by assuming species are monophages
+    GenLoc <- MaxGenLoc(Phy, Int, SpLocs = which(LocDSINeg==T, arr.ind = T))
+    LocLim[LocDSINeg] <- -1*(GenLoc-nullMPDLoc.mean[LocDSINeg])/nullMPDLoc.sd[LocDSINeg]#Minimum value of DSI, calculated by using optimized MaxMPD values
+    LocDSI.st <- LocDSI/abs(LocLim)
+    Loc <- list(MPD=LocMPD, DSI=LocDSI, Lim=LocLim, DSI.st=LocDSI.st)
     Loc$DSICOM <- NA
     for (i in 1:ncol(LocDSI.st)){
       Loc$DSICOM[i] <- weighted.mean(LocDSI.st[,i],LocSamp[,i], na.rm=T)

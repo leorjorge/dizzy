@@ -22,26 +22,20 @@ MaxGenReg <- function (Phy, Int, Spps){
 }
 
 
-MaxGenLoc <- function (Phy, Int){
-  Gen.Arr <- array(dim=c(dim(Int)[c(1,3)],500))
-  for(k in 1:dim(Gen.Arr)[2]){
-    IntLoc <- Int[,colSums(Int[,,k])>0,k]
-    Samp <- rowSums(IntLoc)
-    PhyLoc <- prune.sample(IntLoc,Phy)
-    Prob <- 1/(2^distRoot(PhyLoc,method="nNode"))
-    for(i in 1:dim(Gen.Arr)[1]) {
-      if (Samp[i]<2){
-        Gen.Arr[i,k,] <- NA
-      } else {
-        for (j in 1:dim(Gen.Arr)[3]){
-          SPs <- factor(sample(PhyLoc$tip.label,prob=Prob,size = Samp[i],replace = T),levels=Phy$tip.label)
-          Gen.Arr[i,k,j] <- mpd2(t(table(SPs)),dis=cophenetic(PhyLoc),abundance.weighted = T)
-        }
-      }
+MaxGenLoc <- function (Phy, Int, SpLocs){
+  MaxMPDLoc <- vector(mode="numeric", length=nrow(SpLocs))
+  Samp <- apply(Int, c(1,3), sum)
+  Abund <- apply(Int, c(2,3), sum)
+  for(i in 1:length(MaxMPDLoc)) {
+    if (Samp[SpLocs[i]]<2){
+      MaxMPDLoc[i] <- NA
+    } else {
+      LocAbund <- Abund[,SpLocs[i,2]]
+      Phy.sp <- picante::prune.sample(t(LocAbund[LocAbund>0]), Phy)
+      MaxMPDLoc[i] <- MaxMPD(Samp[SpLocs[i,1],SpLocs[i,2]],Phy.sp)$value*-1
     }
   }
-  MaxGen <- apply(Gen.Arr,c(1,2),max)
-  return (MaxGen)
+  return(MaxMPDLoc)
 }
 
 ### The MPD maximization function, employing simulated annealing. It is called by both MaxGenReg and MaxGenLoc, and depends on genAbund, which is the transition function between different distributions of resource items in the phylogeny, and MPD, which is the function that calculates MPD among these individuals. This very modular design is demanded by the simulated annealing implementation in the optim function.
