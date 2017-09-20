@@ -50,8 +50,7 @@ MaxMPD <- function(N, Phylo){
   Prob <- 1/(2^adephylo::distRoot(Phylo,method="nNode"))
   Start <- t(table(factor(sample(Phylo$tip.label,prob=Prob,size = N,replace = T),levels=Phylo$tip.label)))
   res <- optim(par = Start, fn = MPD, gr = genAbund, Dist = cophenetic(Phylo),
-               method = "SANN", control = list(maxit = 30000, temp = 200, trace = TRUE,
-                                               REPORT = 500))
+               method = "SANN", control = list(maxit = 10000, temp = 200, trace = 0))
   return(res)
 }
 

@@ -29,47 +29,56 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
   Reg$Div <- vegan::diversity(IntMat,"simpson") #Simpson diversity of host plant species
   Reg$Samp <- apply(Int,1,sum) #Number of samples in which each consumer was collected
   Reg$MPD <- mpd2(IntMat,dis = cophenetic(Phy),abundance.weighted = T) #Raw Mean Phylogenetic distance among Regources of a given consumer at the regional level
-  Null.MPD <- matrix(NA,Rep,nrow(Reg)) #Null model. Should be re-written as a separate function, so that for different datasets (geographic variation, no sampling effort etc.) different null models are called. Each cell is MPD of a given model iteration (rows) for one species (columns).
+  Null.MPD <- matrix(NA,Rep,nrow(Reg)) #Null model. Each cell is MPD of a given model iteration (rows) for one species (columns).
   LocSamp <- apply(Int,c(1,3),sum)
   for (j in 1:ncol(Null.MPD)) {
-    if (ncol(LocSamp) > 1) {
-      Locs <- dimnames(Int)[[3]][LocSamp[j,] > 0]
-      Avail <- rep.int(x = rownames(Abund),times = as.numeric(apply(as.matrix(Abund[,Locs]),1,sum)))
-      Pesos <- rep(x=LocSamp[j,LocSamp[j,]>0], times=colSums(Abund)[Locs])
-      for (i in 1:nrow(Null.MPD)){
-        amostras <- sample(Avail, prob=Pesos, size=Reg$Samp[j], replace=TRUE)
-        Null.MPD[i,j] <- mpd2(as.matrix(t(table(amostras))), cophenetic(Phy),abundance.weighted=T)
-      } 
+    if (sum(LocSamp[j,]) <= 1) {
+      Null.MPD[,j] <- NA
     } else {
-      Avail <- rep.int(x=rownames(Abund),times=Abund[,1])
-      for (i in 1:nrow(Null.MPD)){
-        amostras <- sample(Avail, size=Reg$Samp[j], replace=TRUE)
-        Null.MPD[i,j] <- mpd2(as.matrix(t(table(amostras))), cophenetic(Phy),abundance.weighted=T)
+      if (ncol(LocSamp) > 1) {
+        Pesos <- apply(sweep(Abund, MARGIN = 2, LocSamp[j,], "*"), 1, FUN = sum)
+        for (i in 1:nrow(Null.MPD)){
+          amostras <- sample(rownames(Abund), prob=Pesos, size=Reg$Samp[j], replace=TRUE)
+          Null.MPD[i,j] <- mpd2(as.matrix(t(table(amostras))), cophenetic(Phy),abundance.weighted=T)
+        } 
+      } else {
+        for (i in 1:nrow(Null.MPD)){
+          amostras <- sample(rownames(Abund), prob =  Abund[,1],
+                             size=Reg$Samp[j], replace=TRUE)
+          Null.MPD[i,j] <- mpd2(as.matrix(t(table(amostras))), 
+                                cophenetic(Phy),abundance.weighted=T)
+        }
       }
     }
   }
   Null.MPD.mn <- apply(Null.MPD,2,mean, na.rm=T) #Mean MPD for all null model iterations for each species
   Null.MPD.sd <- apply(Null.MPD,2,sd, na.rm=T) #Standard deviation of MPD for all null model iterations
-  Reg$DSI <- -1*(Reg$MPD-Null.MPD.mn)/Null.MPD.sd #DSI Regult measured as a Z-score of MPD
+  Reg$DSI <- -1*(Reg$MPD-Null.MPD.mn)/Null.MPD.sd #DSI Result measured as a Z-score of MPD
   DSIPos <- Reg$DSI>=0 & !is.na(Reg$DSI)
   DSINeg <- Reg$DSI<0 & !is.na(Reg$DSI)
   Reg$Lim[DSIPos] <- -1*(0-Null.MPD.mn[DSIPos])/Null.MPD.sd[DSIPos] #Maximum value of DSI, calculated by assuming all species are monophages
-  Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T))
-  Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg]
-  Reg$DSI.st <- Reg$DSI/abs(Reg$Lim)
+  Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T)) #Calculate the maximum possible MPD by simulated annealing optimization of individuals in resources
+  Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg] #Minimum value of DSI, using the maximum possible value calculated above
+  Reg$DSI.st <- Reg$DSI/abs(Reg$Lim) #Final DSI* value, obtained by standardizing DSI with the limit values obtained above
   if (dim(Int)[3]>1 & DSICom==T){
     #Local data 
-    print("Calculating DSI* at the regional level")
+    print("Calculating DSI* at the local level")
     LocMPD <- apply(X=Int, MARGIN=3, FUN=mpd2, dis=cophenetic(Phy), abundance.weighted=T)
     row.names(LocMPD) <- row.names(Int)
-    
+    LocMPD[LocSamp == 0] <- NA
     nullMPDLoc <- array(dim=c(Rep,nrow(LocMPD),ncol(LocMPD)))  
     for(k in 1:dim(nullMPDLoc)[3]){
       for(j in 1:dim(nullMPDLoc)[2]){
-        Avail <- rep(x=row.names(Abund),times=Abund[,k])
-        for(i in 1:dim(nullMPDLoc)[1]){
-          amostras <- sample(Avail, size=apply(Int,c(1,3),sum)[j,k], replace = TRUE)
-          nullMPDLoc[i,j,k] <- mpd2(as.matrix(t(table(amostras))), cophenetic(Phy),abundance.weighted=T)
+        if (LocSamp[j,k] <= 1){
+          nullMPDLoc[,j,k] <- NA
+        } else {
+          Avail <- rep(x=row.names(Abund),times=Abund[,k])
+          for(i in 1:dim(nullMPDLoc)[1]){
+            amostras <- sample(row.names(Abund), prob = Abund[,k], 
+                               size=LocSamp[j,k], replace = TRUE)
+            nullMPDLoc[i,j,k] <- mpd2(as.matrix(t(table(amostras))), 
+                                      cophenetic(Phy),abundance.weighted=T)
+          }
         }
       }
     }
