@@ -57,8 +57,10 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
   DSIPos <- Reg$DSI>=0 & !is.na(Reg$DSI)
   DSINeg <- Reg$DSI<0 & !is.na(Reg$DSI)
   Reg$Lim[DSIPos] <- -1*(0-Null.MPD.mn[DSIPos])/Null.MPD.sd[DSIPos] #Maximum value of DSI, calculated by assuming all species are monophages
-  Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T)) #Calculate the maximum possible MPD by simulated annealing optimization of individuals in resources
-  Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg] #Minimum value of DSI, using the maximum possible value calculated above
+  if (sum(DSINeg) > 0){
+    Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T)) #Calculate the maximum possible MPD by simulated annealing optimization of individuals in resources
+    Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg] #Minimum value of DSI, using the maximum possible value calculated above
+  }
   Reg$DSI.st <- Reg$DSI/abs(Reg$Lim) #Final DSI* value, obtained by standardizing DSI with the limit values obtained above
   if (dim(Int)[3]>1 & DSICom==T){
     #Local data 
