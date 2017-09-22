@@ -1,6 +1,6 @@
-#dizzy
+# dizzy
 
-###R package to measure distance-based specialisation
+### R package to measure distance-based specialisation
 
 **Leonardo R. Jorge**
 

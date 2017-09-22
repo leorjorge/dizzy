@@ -57,8 +57,10 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
   DSIPos <- Reg$DSI>=0 & !is.na(Reg$DSI)
   DSINeg <- Reg$DSI<0 & !is.na(Reg$DSI)
   Reg$Lim[DSIPos] <- -1*(0-Null.MPD.mn[DSIPos])/Null.MPD.sd[DSIPos] #Maximum value of DSI, calculated by assuming all species are monophages
-  Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T)) #Calculate the maximum possible MPD by simulated annealing optimization of individuals in resources
-  Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg] #Minimum value of DSI, using the maximum possible value calculated above
+  if (sum(DSINeg) > 0){
+    Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg==T)) #Calculate the maximum possible MPD by simulated annealing optimization of individuals in resources
+    Reg$Lim[DSINeg] <- -1*(Gen-Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg] #Minimum value of DSI, using the maximum possible value calculated above
+  }
   Reg$DSI.st <- Reg$DSI/abs(Reg$Lim) #Final DSI* value, obtained by standardizing DSI with the limit values obtained above
   if (dim(Int)[3]>1 & DSICom==T){
     #Local data 
@@ -89,8 +91,10 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
     LocDSIPos <- LocDSI>=0 & !is.na(LocDSI)
     LocDSINeg <- LocDSI<0 & !is.na(LocDSI)
     LocLim[LocDSIPos] <- -1*(0-nullMPDLoc.mean[LocDSIPos])/nullMPDLoc.sd[LocDSIPos]#Maximum value of DSI, calculated by assuming species are monophages
-    GenLoc <- MaxGenLoc(Phy, Int, SpLocs = which(LocDSINeg==T, arr.ind = T))
-    LocLim[LocDSINeg] <- -1*(GenLoc-nullMPDLoc.mean[LocDSINeg])/nullMPDLoc.sd[LocDSINeg]#Minimum value of DSI, calculated by using optimized MaxMPD values
+    if (sum(LocDSINeg) > 0) {
+      GenLoc <- MaxGenLoc(Phy, Int, SpLocs = which(LocDSINeg==T, arr.ind = T))
+      LocLim[LocDSINeg] <- -1*(GenLoc-nullMPDLoc.mean[LocDSINeg])/nullMPDLoc.sd[LocDSINeg]#Minimum value of DSI, calculated by using optimized MaxMPD values
+    }
     LocDSI.st <- LocDSI/abs(LocLim)
     Loc <- list(MPD=LocMPD, DSI=LocDSI, Lim=LocLim, DSI.st=LocDSI.st)
     Loc$DSICOM <- NA
