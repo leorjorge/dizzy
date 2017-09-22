@@ -1,55 +1,64 @@
 #### MaxGen Functions, used to calculate the maximum possible MPD for a given number of individuals in the phylogeny.####
-#The function uses as input a phylo object and the interaction data. It should be used within the DSI calculation function and measures the maximum values of MPDs for the consumers in a given Interaction array
+#The function uses as input a phylo object and the interaction data. It should be used within the DSI calculation function and measures the maximum values of MPDs for the consumers in a given Interaction array. This function depends on the other functions below, that implement the simulated annealing optimization
 #It returns the Maximum MPD for each herbivore species
-require(adephylo, quietly=TRUE)
-MaxGenReg <- function (Phy, Int){
-  Gen.Mat <- matrix(nrow=nrow(Int), ncol=500)
+
+MaxGenReg <- function (Phy, Int, Spps){
+  MaxMPDReg <- vector(mode="numeric", length=length(Spps))
   Samp <- apply(Int, 1, sum)
   ConsLoc <- apply(Int, c(1,3), sum)
   ConsLoc <- ConsLoc>0
   ResLoc <- apply(Int,c(2,3),sum)
-  for(i in 1:nrow(Gen.Mat)) {
-    if (Samp[i]<2){
-      Gen.Mat[i,] <- NA
+  for(i in 1:length(MaxMPDReg)) {
+    #   print(paste("Max DSI:", Spps[i], sep = ""))
+    if (Samp[Spps[i]]<2){
+      MaxMPDReg[i] <- NA
     } else {
-      ResSums <- rowSums(as.matrix(ResLoc[,ConsLoc[i,]]))
-      Phy.sp <- prune.sample(t(ResSums[ResSums>0]), Phy)
-      Prob <- 1/(2^distRoot(Phy.sp,method="nNode"))
-      #     if (min(Samp[i]*Prob)>1){
-      #       Gen.Mat[i,] <- mpd2(matrix(Samp[i]*Prob,nrow=1,dimnames=list(NULL,Phy$tip.label)),
-      #                           dis=cophenetic(Phy),abundance.weighted = T)
-      #     } else {
-      for (j in 1:ncol(Gen.Mat)){
-        SPs <- factor(sample(Phy.sp$tip.label,prob=Prob,size = Samp[i],replace = T),levels=Phy.sp$tip.label)
-        Gen.Mat[i,j] <- mpd2(t(table(SPs)),dis=cophenetic(Phy.sp),abundance.weighted = T)
-      }
+      ResSums <- rowSums(as.matrix(ResLoc[,ConsLoc[Spps[i],]]))
+      Phy.sp <- picante::prune.sample(t(ResSums[ResSums>0]), Phy)
+      MaxMPDReg[i] <- MaxMPD(Samp[Spps[i]],Phy.sp)$value*-1
     }
   }
-  MaxGenReg <- apply(Gen.Mat,1,max)
-  return (MaxGenReg)
+  return(MaxMPDReg)
 }
 
-MaxGenLoc <- function (Phy, Int){
-  Gen.Arr <- array(dim=c(dim(Int)[c(1,3)],500))
-  for(k in 1:dim(Gen.Arr)[2]){
-    IntLoc <- Int[,colSums(Int[,,k])>0,k]
-    Samp <- rowSums(IntLoc)
-    PhyLoc <- prune.sample(IntLoc,Phy)
-    Prob <- 1/(2^distRoot(PhyLoc,method="nNode"))
-    for(i in 1:dim(Gen.Arr)[1]) {
-      if (Samp[i]<2){
-        Gen.Arr[i,k,] <- NA
-      } else {
-        for (j in 1:dim(Gen.Arr)[3]){
-          SPs <- factor(sample(PhyLoc$tip.label,prob=Prob,size = Samp[i],replace = T),levels=Phy$tip.label)
-          Gen.Arr[i,k,j] <- mpd2(t(table(SPs)),dis=cophenetic(PhyLoc),abundance.weighted = T)
-        }
-      }
+
+MaxGenLoc <- function (Phy, Int, SpLocs){
+  MaxMPDLoc <- vector(mode="numeric", length=nrow(SpLocs))
+  Samp <- apply(Int, c(1,3), sum)
+  Abund <- apply(Int, c(2,3), sum)
+  for(i in 1:length(MaxMPDLoc)) {
+    if (Samp[SpLocs[i]]<2){
+      MaxMPDLoc[i] <- NA
+    } else {
+      LocAbund <- Abund[,SpLocs[i,2]]
+      Phy.sp <- picante::prune.sample(t(LocAbund[LocAbund>0]), Phy)
+      MaxMPDLoc[i] <- MaxMPD(Samp[SpLocs[i,1],SpLocs[i,2]],Phy.sp)$value*-1
     }
   }
-  MaxGen <- apply(Gen.Arr,c(1,2),max)
-  return (MaxGen)
+  return(MaxMPDLoc)
 }
+
+### The MPD maximization function, employing simulated annealing. It is called by both MaxGenReg and MaxGenLoc, and depends on genAbund, which is the transition function between different distributions of resource items in the phylogeny, and MPD, which is the function that calculates MPD among these individuals. This very modular design is demanded by the simulated annealing implementation in the optim function.
+
+MaxMPD <- function(N, Phylo){
+  Prob <- 1/(2^adephylo::distRoot(Phylo,method="nNode"))
+  Start <- t(table(factor(sample(Phylo$tip.label,prob=Prob,size = N,replace = T),levels=Phylo$tip.label)))
+  res <- optim(par = Start, fn = MPD, gr = genAbund, Dist = cophenetic(Phylo),
+               method = "SANN", control = list(maxit = 10000, temp = 200, trace = 0))
+  return(res)
+}
+
+
+genAbund <- function(Start, Dist) { 
+  idx <- 1:length(Start)
+  LossAbund <- sample(x = idx[Start > 0], size = 1, replace = FALSE)
+  GainAbund <- sample(x = idx[-LossAbund], size = 1, replace = FALSE)
+  Start[LossAbund] <- Start[LossAbund]-1
+  Start[GainAbund] <- Start[GainAbund]+1
+  Start
+}
+
+
 
 #### Null model to test for the different components calculated through DSImean ####
 NullNA <- function(DSILoc,rep=1000){
@@ -65,7 +74,9 @@ NullNA <- function(DSILoc,rep=1000){
 }
 
 #####MPD####
-#Function to calculate MPD correctly. The rationale is similar to the MPD function in picante, but the diagonal in the sample weights matrix is corrected, using the number of combinations of diferent individuals in the same species at the diagonal. MPD for 1 single species is also changed to 0 instead of NA.
+#Function to calculate MPD correctly. The rationale is similar to the MPD function in picante, but the diagonal in the sample weights matrix is corrected, using the number of combinations of diferent individuals in the same species at the diagonal. MPD for 1 single species is also changed to 0 instead of NA. (mpd2)
+#In addition, a function using only numeric arguments is also available, for use in the optimization of MaxMPD (MPD)
+#I'm considering changing everything in the package to use MPD.
 
 mpd2 <- function (samp, dis, abundance.weighted = FALSE) {
   N <- dim(samp)[1]
@@ -88,4 +99,14 @@ mpd2 <- function (samp, dis, abundance.weighted = FALSE) {
     }
   }
   mpd
+}
+
+
+MPD <- function(Start, Dist){
+  Dist <- matrix(Dist, nrow = length(Start))
+  Dist.samp <- Dist[which(Start>0),which(Start>0)]
+  Start <- Start[Start>0]
+  sample.weights <- outer(Start,Start,"*")
+  diag(sample.weights) <- as.numeric(Start*(Start-1)/2)
+  weighted.mean(Dist.samp[lower.tri(Dist.samp, diag=TRUE)], sample.weights[lower.tri(sample.weights, diag=TRUE)])*-1
 }
