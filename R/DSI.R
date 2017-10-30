@@ -22,7 +22,7 @@ dsi <- function(Int,Phylo,Abund,Rep=200, DSICom = T){
     dimnames(Int) <- Dims
   }
   IntMat <- apply(Int,c(1,2),sum) #Matrix with interactions at the regional level
-  Phy <- picante::prune.sample(IntMat,Phylo) #Prune phylogeny for the resource species in ith interaction matrix
+  Phy <- picante::prune.sample(t(Abund),Phylo) #Prune phylogeny for the resource species available acording to Abund
   print("Calculating DSI* at the regional level")
   Reg <- data.frame(row.names = rownames(Int)) #Data frame to store the results. 
   Reg$Rich <- vegan::specnumber(IntMat) #Number of host plant species
