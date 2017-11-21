@@ -44,7 +44,7 @@ MaxGenLoc <- function(Phy, Int, SpLocs){
 MaxMPD <- function(N, Phylo){
   Start <- t(table(factor(sample(rownames(Phylo), size = N, replace = T), levels = rownames(Phylo))))
   res <- optim(par = Start, fn = MPD, gr = genAbund, Dist = Phylo,
-               method = "SANN", control = list(maxit = 100000, temp = 200, trace = 0))
+               method = "SANN", control = list(maxit = 150000, temp = 300, trace = 0))
   return(res)
 }
 
