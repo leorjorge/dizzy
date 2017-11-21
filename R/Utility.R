@@ -42,7 +42,7 @@ MaxGenLoc <- function(Phy, Int, SpLocs){
 ### The MPD maximization function, employing simulated annealing. It is called by both MaxGenReg and MaxGenLoc, and depends on genAbund, which is the transition function between different distributions of resource items in the phylogeny, and MPD, which is the function that calculates MPD among these individuals. This very modular design is demanded by the simulated annealing implementation in the optim function.
 
 MaxMPD <- function(N, Phylo){
-  Prob <- 1/(2^adephylo::distRoot(ape::compute.brlen(ape::as.phylo(hclust(as.dist(cophenetic(Phylo))))), 
+  Prob <- 1/(2^adephylo::distRoot(ape::compute.brlen(ape::as.phylo(hclust(as.dist(Phylo)))), 
                                   method = "nNode"))
   Start <- t(table(factor(sample(rownames(Phylo), prob = Prob, size = N, replace = T), 
                           levels = rownames(Phylo))))
