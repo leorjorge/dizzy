@@ -9,4 +9,3 @@ DSImean(DSILoc)
 \description{
 Partition of DSI components among locations and species
 }
-

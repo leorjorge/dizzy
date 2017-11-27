@@ -4,9 +4,8 @@
 \alias{DSI.Guilds}
 \title{Wrapper to calculate DSI for several different guilds}
 \usage{
-DSI.Guilds(Int, Phylo, Abund, Rep = 200)
+DSI.Guilds(Int, Dist, Abund, Rep = 200)
 }
 \description{
 Wrapper to calculate DSI for several different guilds
 }
-

@@ -4,9 +4,8 @@
 \alias{DSIpart}
 \title{Wrapper to calculate DSImean and the corresponding null model and provide proper results}
 \usage{
-DSIpart(Mat, rep = 1000)
+DSIpart(Mat, rep = 999)
 }
 \description{
 Wrapper to calculate DSImean and the corresponding null model and provide proper results
 }
-

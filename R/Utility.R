@@ -62,20 +62,6 @@ genAbund <- function(Start, Dist) {
 }
 
 
-
-#### Null model to test for the different components calculated through DSImean ####
-NullNA <- function(DSILoc,rep=1000){
-  NullDSI <- array(NA,dim = c(dim(DSILoc),rep))
-  for(i in 1:rep){
-    NullDSI[,,i][!is.na(DSILoc)] <- sample(DSILoc[!is.na(DSILoc)])
-  }
-  NullPart <- t(apply(NullDSI,3,DSImean))
-  #  NullDist <- matrix(unlist(NullPart),length(NullPart),4,byrow = T)
-  #  colnames(NullDist) <- names(NullPart[[1]])
-  #  return(NullDist)
-  return(NullPart)
-}
-
 #####MPD####
 #Function to calculate MPD correctly. The rationale is similar to the MPD function in picante, but the diagonal in the sample weights matrix is corrected, using the number of combinations of diferent individuals in the same species at the diagonal. MPD for 1 single species is also changed to 0 instead of NA. (mpd2)
 #In addition, a function using only numeric arguments is also available, for use in the optimization of MaxMPD (MPD)
