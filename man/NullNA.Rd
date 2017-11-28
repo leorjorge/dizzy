@@ -4,7 +4,7 @@
 \alias{NullNA}
 \title{Null model to test for the different components calculated through DSImean}
 \usage{
-NullNA(DSILoc, rep = 1000)
+NullNA(DSILoc, rep = 999)
 }
 \description{
 Null model to test for the different components calculated through DSImean

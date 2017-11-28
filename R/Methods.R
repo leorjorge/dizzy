@@ -5,12 +5,12 @@ print.dsi <- function(object){
   ncon <- length(object$consumers)
   nres <- length(object$resources)
   sing <- sum(object$samp == 1)
-  cat(paste("Object of class dsi, with the distance-based specialization indes calculated for", 
-            ncon, "consumer species, using", nres, "resource types"))
+  cat(paste("\nObject of class dsi, with the distance-based specialization index calculated for", 
+            ncon, " consumer species, using", nres, " resource types"))
   if (sing > 0) {
-    cat(paste(sing, "consumers are singletons and specialization was not calculated for them"))
+    cat(paste("\n",sing, " consumers are singletons and specialization was not calculated for them"))
   }
-  cat("for DSI* levels, use summary or acess the object slots directly")
+  cat("\n For DSI* values, use summary or access the object directly")
 }
 
 #' @export

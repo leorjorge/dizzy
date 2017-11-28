@@ -1,9 +1,9 @@
 #' Distance-based specialisation index
 #'
-#'Measures the distance-based specialization indesx (DSI) of a set of consumers. 
-#'Relies on resource use information from an interaction matrix or array, 
-#'resource similarities from a distance matrix or phylogeny, and local resource availability 
-#'data standardizing the null models.
+#' \code{dsi} measures the distance-based specialization indesx (DSI*) of a set of consumers. 
+#' Relies on resource use information from an interaction matrix or array, 
+#' resource similarities from a distance matrix or phylogeny, and local resource availability 
+#' data for creating diet null models.
 #'
 #' @export
 #' 
@@ -13,15 +13,45 @@
 #' When the matrix has two dimensions no local variation is assumed.
 #' 
 #' @param Dist Object of class phylo with the $tip.label information matching Abundance data. 
-#' The phylogeny should have all resource species present in the interaction array 
-#' and will be pruned accordingly. 
+#' The phylogeny should have all resource classes present in \code{Abund} 
+#' and will be pruned to remove resource classes absent from \code{Abund}. 
 #' Alternatively, a distance matrix, with dissimilarities between resource classes. 
-#' Dimension names must match Abundance data.
+#' Dimension names must match \code{Abund}.
 #' 
-#' @param Abund Matrix of local abundances/sampling effort of the resources in the interaction array at different locations
+#' @param Abund Matrix of local abundances/sampling effort of the resources in the 
+#' interaction array at different locations
 #' 
 #' @param Rep Number of iterations for the null model, defaults to 999
 #' 
+#' @return Returns an object of class \code{dsi}, with the following elements:
+#' \item{data}{A list with the three objects used to calculate DSI - The interaction array, distance
+#' matrix and resource availability matrix}
+#' \item{consumers}{A character vector with the names of consumer species}
+#' \item{resources}{A character vector with the names of resource classes (often species)}
+#' \item{richness}{A numeric vector with the number of resource classes used by each consumer species}
+#' \item{samp}{A numeric vector with the number of individuals or interactions recorded for each
+#'  consumer species}
+#'  \item{MPD}{A numeric vector with the abundance averaged mean pairwise distance 
+#'  between resource items used by each consumer species}
+#'  \item{null}{A matrix with \code{Rep} rows and \code{consumers} in columns, 
+#'  with all \code{MPD} values obtained by the null model}
+#'  \item{DSI}{A numeric vector with unstandardized DSI values. These are calculated as Z-scores 
+#'  of the MPD values, compared to the null distribution of MPDs obtained from the null model. 
+#'  It can be used to classify consumers as specialists, non-selective or generalists, 
+#'  but is not appropriate for comparisons among species with different sampling effort}
+#'  \item{class}{A character vector with the specialization class of consumers. 
+#'  Singletons will return NA}
+#'  \item{lim}{Theoretical maximum (for species with positive DSI) and minimum 
+#'  (for species with negative DSI) DSI values attainable for the sample size and 
+#'  resource similarity of each consumer species. Used to standardize DSI and generate comparable
+#'  DSI* values. Maximum is obtained by assuming the species is a monophage, and minimum is
+#'  calculated by using a Simulated annealing algorithm to distribute the recorded number
+#'  of interactions among resource classes in such a manner that maximizes MPD}
+#'  \item{DSIstar}{A numeric vector with standardized DSI values (DSI*). This is the index as 
+#'  proposed in Jorge et al. (2017). DSI* values vary between -1 (extreme generalization) to 1 
+#'  (extreme specialization). This should be the preferred value to be used when comparing species,
+#'  as it has a very straightforward interpretation and is controlled for differences both in sampling 
+#'  intensity, co-occurrence with resources and resource similarity differences.}
 
 dsi <- function(Int, Dist, Abund, Rep=999){
   if (length(dim(Int)) == 2) {
@@ -35,6 +65,12 @@ dsi <- function(Int, Dist, Abund, Rep=999){
     Phy <- cophenetic(Dist)
   }
   Phy <- as.matrix(Phy)[rownames(Phy) %in% rownames(Abund), colnames(Phy) %in% rownames(Abund)]
+  if (length(setdiff(rownames(Abund), rownames(Phy))) > 0) {
+    stop("One or more resources in Abund absent from Dist")
+  }
+  if (length(setdiff(colnames(Int), rownames(Phy))) > 0) {
+    stop("One or more resources in Int absent from Dist")
+  }
   Res <- structure(list(), class = "dsi")
   Res$data$int <- Int
   Res$data$dist <- Phy
@@ -42,8 +78,11 @@ dsi <- function(Int, Dist, Abund, Rep=999){
   Res$consumers <- rownames(Int)
   Res$resources <- colnames(Phy)
   Res$richness <- vegan::specnumber(IntMat) #Number of host plant species
+  names(Res$richness) <- Res$consumers
   Res$samp <- apply(Int,1,sum) #Number of samples in which each consumer was collected
+  names(Res$samp) <- Res$consumers
   Res$MPD <- mpd2(IntMat,dis = Phy, abundance.weighted = T) #Raw Mean Phylogenetic distance among Regources of a given consumer at the regional level
+  names(Res$MPD) <- Res$consumers
   Null.MPD <- matrix(NA,Rep,length(Res$consumers)) #Null model. Each cell is MPD of a given model iteration (rows) for one species (columns).
   LocSamp <- apply(Int,c(1,3),sum)
   for (j in 1:ncol(Null.MPD)) {
@@ -69,17 +108,21 @@ dsi <- function(Int, Dist, Abund, Rep=999){
   Null.MPD.mn <- apply(Null.MPD,2,mean, na.rm = T) #Mean MPD for all null model iterations for each species
   Null.MPD.sd <- apply(Null.MPD,2,sd, na.rm = T) #Standard deviation of MPD for all null model iterations
   Res$DSI <- -1*(Res$MPD - Null.MPD.mn)/Null.MPD.sd #DSI Result measured as a Z-score of MPD
+  names(Res$DSI) <- Res$consumers
   Res$class[Res$DSI < -1.96] <- "generalist"
   Res$class[Res$DSI > 1.96] <- "specialist"
-  Res$class[Res$DSI >= -1.96 && Res$DSI <= 1.96] <- "non-selective"
+  Res$class[Res$DSI >= -1.96 & Res$DSI <= 1.96] <- "non-selective"
+  names(Res$class) <- Res$consumers
   DSIPos <- Res$DSI >= 0 & !is.na(Res$DSI)
   DSINeg <- Res$DSI < 0 & !is.na(Res$DSI)
-  Res$Lim[DSIPos] <- -1*(0 - Null.MPD.mn[DSIPos])/Null.MPD.sd[DSIPos] #Maximum value of DSI, calculated by assuming all species are monophages
+  Res$lim[DSIPos] <- -1*(0 - Null.MPD.mn[DSIPos])/Null.MPD.sd[DSIPos] #Maximum value of DSI, calculated by assuming all species are monophages
   if (sum(DSINeg) > 0) {
     Gen <- MaxGenReg(Phy, Int, Spps = which(DSINeg == T)) #Calculate the maximum possible MPD by simulated annealing optimization of individuals in resources
-    Res$Lim[DSINeg] <- -1*(Gen - Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg] #Minimum value of DSI, using the maximum possible value calculated above
+    Res$lim[DSINeg] <- -1*(Gen - Null.MPD.mn[DSINeg])/Null.MPD.sd[DSINeg] #Minimum value of DSI, using the maximum possible value calculated above
   }
-  Res$DSIstar <- Res$DSI/abs(Res$Lim) #Final DSI* value, obtained by standardizing DSI with the limit values obtained above
+  names(Res$lim) <- Res$consumers
+  Res$DSIstar <- Res$DSI/abs(Res$lim) #Final DSI* value, obtained by standardizing DSI with the limit values obtained above
+  names(Res$DSIstar) <- Res$consumers
   return(Res)
 }
 
