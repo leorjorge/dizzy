@@ -5,8 +5,8 @@ print.dsi <- function(object){
   ncon <- length(object$consumers)
   nres <- length(object$resources)
   sing <- sum(object$samp == 1)
-  cat(paste("\nObject of class dsi, with the distance-based specialization index calculated for", 
-            ncon, " consumer species, using", nres, " resource types"))
+  cat(paste("Object of class dsi, with the distance-based specialization index calculated for", 
+            ncon, "consumer species, \n using", nres, "resource types \n"))
   print(object$DSIstar)
   if (sing > 0) {
     cat(paste("\n",sing, " consumer species are singletons and specialization was not calculated for them"))
@@ -34,12 +34,12 @@ print.dsicom <- function(object){
   ncon <- length(object$consumers)
   nres <- length(object$resources)
   ncom <- length(object$communities)
-  cat(paste("\n Object of class dsicom, with the distance-based specialization index calculated for", 
-            ncon, " consumer species, using", nres, " resource types in", ncom, " communities"))
+  cat(paste("Object of class dsicom, with the distance-based specialization index calculated for", 
+            ncon, " consumer species, \n using", nres, " resource types in", ncom, " communities"))
   cat(paste("\n DSICom values calculated for", ncom, " communities:"))
   print(object$dsicom)
   if (is.data.frame(object$part)) {
-    cat("Partition of the variability in DSI* measured locally:")
+    cat("Partition of the variability in DSI* measured locally: \n ")
     print(object$part)
   }
   cat("\n For individual DSI* levels measured locally, access the DSIstar element directly")
