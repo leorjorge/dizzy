@@ -8,8 +8,8 @@ MaxGenReg <- function(Phy, Int, Spps){
   ConsLoc <- apply(Int, c(1,3), sum)
   ConsLoc <- ConsLoc > 0
   ResLoc <- apply(Int,c(2,3),sum)
-  for(i in 1:length(MaxMPDReg)) {
-    if (Samp[Spps[i]]<2){
+  for (i in 1:length(MaxMPDReg)) {
+    if (Samp[Spps[i]] < 2) {
       MaxMPDReg[i] <- NA
     } else {
       ResSums <- rowSums(as.matrix(ResLoc[,ConsLoc[Spps[i],]]))
@@ -59,6 +59,12 @@ genAbund <- function(Start, Dist) {
   Start[LossAbund] <- Start[LossAbund] - 1
   Start[GainAbund] <- Start[GainAbund] + 1
   Start
+}
+
+pvalue <- function(obs, null) {
+  greater <- (sum(obs < null) + 1)/(length(null) + 1)
+  smaller <- (sum(obs > null) + 1)/(length(null) + 1)
+  res <- min(greater, smaller)*2
 }
 
 

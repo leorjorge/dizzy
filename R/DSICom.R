@@ -63,16 +63,18 @@
 #'  intensity, co-occurrence with resources and resource similarity differences.}
 #'  \item{dsicom}{A numeric vector with abundance weighted avarage DSI* (DSICom) of the species 
 #'  that occur in each community.}
-#'  \item{part}{If \code{Part} is set to \code{TRUE} (the default), the three components
-#'  of variation in DSI* are presented. \code{IntraSP} amounts to differences within species, 
-#'  \code{IntraCom} amounts to differences within communities, and \code{Residual} amounts 
-#'  to residual variation between species and communities.}
 #'  \item{nullpart}{If \code{Part} is set to \code{TRUE} (the default), the DSI* variation 
 #'  components calculated from the null model are recorded in a matrix with components in 
-#'  columns and null model iterations in rows.}
-#'  \item{partZ}{If \code{Part} is set to \code{TRUE} (the default), the Z-scores with the 
-#'  effect sizes of the observed variability components compared to the null model is shown, with
-#'  the same nomenclature as \code{part} above}
+#'  columns and null model iterations in rows. \code{IntraSP} amounts to differences within species, 
+#'  \code{IntraCom} amounts to differences within communities, and \code{Residual} amounts 
+#'  to residual variation between species and communities.}
+#'  \item{part}{If \code{Part} is set to \code{TRUE} (the default), A dataframe, with the 
+#'  three components of variation in DSI* are presented, along with the Z-scores with the 
+#'  effect sizes of the observed variability components compared to the null model and
+#'  p values calculated as bi-caudal probabilities by comparing observed values with 
+#'  the null model, for each component. \code{IntraSP} amounts to differences within species, 
+#'  \code{IntraCom} amounts to differences within communities, and \code{Residual} amounts 
+#'  to residual variation between species and communities.}
 
 dsicom <- function(Int, Dist, Abund, Rep=999, Part = TRUE){
   if (dim(Int)[3] == 1) stop("Interaction data for only one community provided")
@@ -134,9 +136,10 @@ dsicom <- function(Int, Dist, Abund, Rep=999, Part = TRUE){
   }
   if (Part == T) {
     part <- DSIpart(Res$DSIstar, rep = Rep)
-    Res$part <- part$OBS
     Res$nullpart <- part$Null
-    Res$partZ <- part$Z
+    Res$part <- data.frame(Part = part$OBS,
+                           Z = part$Z,
+                           p.value = mapply(pvalue, part$OBS, as.data.frame(part$Null)))
   }
   return(Res)
 }
