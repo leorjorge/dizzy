@@ -62,9 +62,10 @@ dsi <- function(Int, Dist, Abund, Rep=999){
   }
   IntMat <- apply(Int,c(1,2),sum) #Matrix with interactions at the regional level
   if (class(Dist) == "phylo") {
-    Phy <- cophenetic(Dist)
+    Dist <- cophenetic(Dist)
   }
-  Phy <- as.matrix(Phy)[rownames(Phy) %in% rownames(Abund), colnames(Phy) %in% rownames(Abund)]
+  Dist <- as.matrix(Dist)
+  Phy <- Dist[rownames(Dist) %in% rownames(Abund), colnames(Dist) %in% rownames(Abund)]
   if (length(setdiff(rownames(Abund), rownames(Phy))) > 0) {
     stop("One or more resources in Abund absent from Dist")
   }

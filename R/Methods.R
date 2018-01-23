@@ -36,23 +36,11 @@ print.dsicom <- function(object){
   ncom <- length(object$communities)
   cat(paste("Object of class dsicom, with the distance-based specialization index calculated for", 
             ncon, " consumer species, \n using", nres, " resource types in", ncom, " communities"))
-  cat(paste("\n DSICom values calculated for", ncom, " communities:"))
+  cat(paste("\n DSICom values calculated for", ncom, " communities: \n "))
   print(object$dsicom)
   if (is.data.frame(object$part)) {
-    cat("Partition of the variability in DSI* measured locally: \n ")
+    cat("\n Partition of the variability in DSI* measured locally: \n ")
     print(object$part)
   }
-  cat("\n For individual DSI* levels measured locally, access the DSIstar element directly")
-}
-
-#' Plotting the partiion
-#' 
-#' @export
-#' 
-#' 
-Plot.DSIpart <- function(Part){
-  x <- factor(names(Part$OBS),levels(factor(names(Part$OBS)))[c(3,2,1)])
-  plot.default(x[-4],Part$OBS[-4], pch=16, ylim=range(c(Part$OBS,Part$CI)), xaxt="n", ylab="Mean Squares", xlab="Component")
-  axis(1, 1:3, x[-4])
-  segments(x0=1:3,y0=Part$CI[1,-4], y1=Part$CI[2,-4])
+  cat("\n For individual DSI* values measured locally, access the DSIstar element directly")
 }
