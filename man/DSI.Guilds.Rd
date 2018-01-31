@@ -9,4 +9,3 @@ DSI.Guilds(Int, Phylo, Abund, Rep = 200)
 \description{
 Wrapper to calculate DSI for several different guilds
 }
-

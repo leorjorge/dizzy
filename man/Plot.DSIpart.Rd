@@ -9,4 +9,3 @@ Plot.DSIpart(Part)
 \description{
 Plotting the partiion
 }
-

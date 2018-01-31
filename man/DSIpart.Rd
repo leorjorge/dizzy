@@ -9,4 +9,3 @@ DSIpart(Mat, rep = 1000)
 \description{
 Wrapper to calculate DSImean and the corresponding null model and provide proper results
 }
-

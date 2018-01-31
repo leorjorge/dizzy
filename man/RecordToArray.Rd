@@ -35,4 +35,3 @@ This function converts records for the occurrence of interactions registered
 in 'long' format, with columns for consumer, resource, location and frequency
 into an interaction array.
 }
-

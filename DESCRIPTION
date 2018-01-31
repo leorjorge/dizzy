@@ -13,4 +13,4 @@ Description: A set of tools to measure the distance-based specialisation index
     (DSI) for species and its community-level counterpart (DSICom)
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

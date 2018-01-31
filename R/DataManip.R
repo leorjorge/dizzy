@@ -36,7 +36,7 @@ RecordToArray <- function (data, cons=1, res=2, loc, freq=NULL){
     data$loc <- "Location"
   }
   if (!is.null(freq)) {
-    raw <- data.frame(data[,cons],data[,res],data[,loc],data[,freq])
+    raw <- data.frame(cons = data[,cons],res = data[,res], loc = data[,loc], freq = data[,freq])
     data <- raw[rep(1:nrow(raw), times=raw$freq),]
   }
 int.array <- table(data[,cons], data[,res], data[,loc]) 

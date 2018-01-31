@@ -13,4 +13,3 @@ MatToArray(mats)
 Organises a set of local interaction matrices into one array for interactions
 in all locations
 }
-

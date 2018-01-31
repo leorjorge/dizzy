@@ -4,18 +4,19 @@
 \alias{dsi}
 \title{Distance-based specialisation index}
 \usage{
-dsi(Int, Phylo, Abund, Rep = 200)
+dsi(Int, Phylo, Abund, Rep = 200, DSICom = T)
 }
 \arguments{
 \item{Int}{Is an interaction array for which Specialization is to be measured. Consumers are in rows, resources in the columns and different locations (or other "local" partition - e.g. time) are slices. When the matrix has two dimensions no local variation is assumed.}
 
-\item{Phylo}{Object of class phylo with the $tip.label information matching Int column names. The phylogeny should have all resource species present in the interaction array and will be pruned accordingly}
-
 \item{Abund}{Matrix of local abundances/sampling effort of the resources in the interaction array at different locations}
 
 \item{Rep}{Number of iterations for the null model selected}
+
+\item{DSICom}{Whether specialization is to be calculated locally.}
+
+\item{Dist}{Object of class phylo with the $tip.label information matching Abundance data. The phylogeny should have all resource species present in the interaction array and will be pruned accordingly. Alternatively, a distance matrix, with dissimilarities between resource classes. Dimension names must match Abundance data.}
 }
 \description{
 Measures DSI from an Interaction matrix and a Phylogeny. Sampling effort data is necessary for the null model.
 }
-
