@@ -134,7 +134,7 @@ dsicom <- function(Int, Dist, Abund, Rep=999, Part = TRUE){
   for (i in 1:ncol(LocDSI.st)) {
     Res$dsicom[i] <- weighted.mean(LocDSI.st[,i], LocSamp[,i], na.rm = T)
   }
-  names(Res$dsicom) <- consumers
+  names(Res$dsicom) <- Res$communities
   if (Part == T) {
     part <- DSIpart(Res$DSIstar, rep = Rep)
     Res$nullpart <- part$Null
