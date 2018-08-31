@@ -4,7 +4,7 @@ Title: Tools to measure distance based specialisation of species and communities
 Version: 1.0.0
 Authors@R: c(
 person("Jorge", "Leonardo R.", email = "leonardorejorge@gmail.com", role = c("aut", "cre"))
-person("Felix", "Gabriel", email = "gabriel.felix@hotmail.com", role = c("cre"))
+person("Felix", "Gabriel", email = "gabriel.felix@hotmail.com", role = c("cre")))
 Imports:
     picante,
     adephylo,
