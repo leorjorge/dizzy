@@ -19,7 +19,8 @@
 #' Dimension names must match \code{Abund}.
 #' 
 #' @param Abund Matrix of local abundances/sampling effort of the resources in the 
-#' interaction array at different locations
+#' interaction array at different locations. Resource items are in rows and locations in columns,
+#' with labels as row and column names. Abundances can be inputted as relative or absolute values.
 #' 
 #' @param Rep Number of iterations for the null model, defaults to 999
 #' 
@@ -127,16 +128,3 @@ dsi <- function(Int, Dist, Abund, Rep=999){
   return(Res)
 }
 
-
-#' Wrapper to calculate DSI for several different guilds
-#' 
-#' @export
-#' 
-DSI.Guilds <- function(Int,Dist,Abund,Rep=200){
-  Res <- vector("list",length(Int))
-  names(Res) <- names(Int)
-  for(i in names(Int)){ #This loop calculates results for each interaction matrix separately.
-    Res[[i]] <- dsi(Int[[i]],Dist,Abund[[i]],Rep=Rep)
-  }
-  return(Res)
-}

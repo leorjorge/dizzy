@@ -47,7 +47,7 @@ MaxMPD <- function(N, Phylo){
   Start <- t(table(factor(sample(rownames(Phylo), prob = Prob, size = N, replace = T), 
                           levels = rownames(Phylo))))
   res <- optim(par = Start, fn = MPD, gr = genAbund, Dist = Phylo,
-               method = "SANN", control = list(maxit = 150000, temp = 300, trace = 0))
+               method = "SANN", control = list(maxit = 90000, temp = 400, trace = 0))
   return(res)
 }
 

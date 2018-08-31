@@ -50,7 +50,9 @@ return(int.array)
 #' 
 #' @export
 #' 
-#' @param mats A vector with matrix object names.
+#' @param mats A vector with matrix object names. All matrix objects must have consumers in rows and 
+#' resources in columns, with consistent dimnames. The function includes all species in all array 
+#' layers to keep dimensions constant.
 #' 
 
 MatToArray <- function (mats){
