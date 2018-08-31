@@ -19,7 +19,8 @@ Alternatively, a distance matrix, with dissimilarities between resource classes.
 Dimension names must match \code{Abund}.}
 
 \item{Abund}{Matrix of local abundances/sampling effort of the resources in the 
-interaction array at different locations}
+interaction array at different locations. Resource items are in rows and locations in columns,
+with labels as row and column names. Abundances can be inputted as relative or absolute values.}
 
 \item{Rep}{Number of iterations for the null model, defaults to 999}
 }

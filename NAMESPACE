@@ -3,7 +3,6 @@
 S3method(print,dsi)
 S3method(print,dsicom)
 S3method(summary,dsi)
-export(DSI.Guilds)
 export(DSImean)
 export(DSIpart)
 export(MatToArray)
