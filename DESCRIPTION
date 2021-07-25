@@ -1,16 +1,15 @@
 Package: dizzy
 Type: Package
 Title: Tools to measure distance based specialisation of species and communities
-Version: 0.1
-Date: 2015-12-17
-Authors@R: person("Jorge", "Leonardo R.", email = "leonardorejorge@gmail.com",
-  role = c("aut", "cre"))
+Version: 1.0.0
+Authors@R: c(person("Jorge", "Leonardo R.", email = "leonardorejorge@gmail.com", role = c("aut", "cre")), person("Felix", "Gabriel", email = "gabriel.felix@hotmail.com", role = "aut"))
 Imports:
     picante,
-    bipartite,
-    adephylo
+    adephylo,
+    ape,
+    vegan
 Description: A set of tools to measure the distance-based specialisation index
     (DSI) for species and its community-level counterpart (DSICom)
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.1

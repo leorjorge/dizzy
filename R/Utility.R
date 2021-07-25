@@ -8,8 +8,8 @@ MaxGenReg <- function(Phy, Int, Spps){
   ConsLoc <- apply(Int, c(1,3), sum)
   ConsLoc <- ConsLoc > 0
   ResLoc <- apply(Int,c(2,3),sum)
-  for(i in 1:length(MaxMPDReg)) {
-    if (Samp[Spps[i]]<2){
+  for (i in 1:length(MaxMPDReg)) {
+    if (Samp[Spps[i]] < 2) {
       MaxMPDReg[i] <- NA
     } else {
       ResSums <- rowSums(as.matrix(ResLoc[,ConsLoc[Spps[i],]]))
@@ -47,7 +47,7 @@ MaxMPD <- function(N, Phylo){
   Start <- t(table(factor(sample(rownames(Phylo), prob = Prob, size = N, replace = T), 
                           levels = rownames(Phylo))))
   res <- optim(par = Start, fn = MPD, gr = genAbund, Dist = Phylo,
-               method = "SANN", control = list(maxit = 150000, temp = 300, trace = 0))
+               method = "SANN", control = list(maxit = 90000, temp = 400, trace = 0))
   return(res)
 }
 
@@ -61,20 +61,12 @@ genAbund <- function(Start, Dist) {
   Start
 }
 
-
-
-#### Null model to test for the different components calculated through DSImean ####
-NullNA <- function(DSILoc,rep=1000){
-  NullDSI <- array(NA,dim = c(dim(DSILoc),rep))
-  for(i in 1:rep){
-    NullDSI[,,i][!is.na(DSILoc)] <- sample(DSILoc[!is.na(DSILoc)])
-  }
-  NullPart <- t(apply(NullDSI,3,DSImean))
-  #  NullDist <- matrix(unlist(NullPart),length(NullPart),4,byrow = T)
-  #  colnames(NullDist) <- names(NullPart[[1]])
-  #  return(NullDist)
-  return(NullPart)
+pvalue <- function(obs, null) {
+  greater <- (sum(obs < null) + 1)/(length(null) + 1)
+  smaller <- (sum(obs > null) + 1)/(length(null) + 1)
+  res <- min(greater, smaller)*2
 }
+
 
 #####MPD####
 #Function to calculate MPD correctly. The rationale is similar to the MPD function in picante, but the diagonal in the sample weights matrix is corrected, using the number of combinations of diferent individuals in the same species at the diagonal. MPD for 1 single species is also changed to 0 instead of NA. (mpd2)

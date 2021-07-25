@@ -7,7 +7,9 @@
 MatToArray(mats)
 }
 \arguments{
-\item{mats}{A vector with matrix object names.}
+\item{mats}{A vector with matrix object names. All matrix objects must have consumers in rows and 
+resources in columns, with consistent dimnames. The function includes all species in all array 
+layers to keep dimensions constant.}
 }
 \description{
 Organises a set of local interaction matrices into one array for interactions
