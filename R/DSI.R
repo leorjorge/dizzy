@@ -1,6 +1,6 @@
 #' Distance-based specialisation index
 #'
-#' \code{dsi} measures the distance-based specialization indesx (DSI*) of a set of consumers. 
+#' \code{dsi} measures the distance-based specialization index (DSI*) of a set of consumers. 
 #' Relies on resource use information from an interaction matrix or array, 
 #' resource similarities from a distance matrix or phylogeny, and local resource availability 
 #' data for creating diet null models.
