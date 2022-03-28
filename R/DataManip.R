@@ -6,7 +6,7 @@
 #' 
 #' @export
 #' 
-#' @param data A dataframe of recorded interactions. It needs at least one 
+#' @param data A data frame of recorded interactions. It needs at least one 
 #'   column for consumer identity and another for resource identity. If the
 #'   study spans different locations, one column with location identity must be
 #'   provided. The frequency of a given interaction is recorded in a separate
